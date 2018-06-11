@@ -10,7 +10,7 @@ In this project, an HTML+JS feed reader is completed with some necessary test su
 
 The only file edited was `jasmine/spec/feedreader.js`, adding test suites and tests according to the [Project Rubric](https://review.udacity.com/#!/rubrics/18/view).
 
-As an extra, an additional test was added in the `RSS Feeds` test suite to make sure that illegal access to the `allFeeds` array would `throw` an `exception`.
+As an extra, an additional test was added in the `RSS Feeds` test suite to make sure that in-bounds access to the `allFeeds` array would not `throw` an `exception` (thus avoiding the need to click all menu items singularly to test all feeds).
 
 All edits are properly commented. No additional credits for the code were necessary on this one.
 
