@@ -53,26 +53,32 @@ $(
         }
       });
 
-      /* This additional test checks that an illegal call
-				 * out of the bounds of the allFeeds array properly
-				 * throws an error.
-				 */
-      it("throws an error if OutOfBounds", function() {
-        expect(function() {
-          loadFeed(allFeeds.length);
-        }).toThrow();
+      /* This additional test checks that calling loadFeed
+			 * inside the bounds of allFeeds doesn't throw any
+			 * unexpected exception, as previous tests may still
+			 * admit illegal `name` and `url` values.
+			 * Note: this saves some time from manually clicking
+			 * all menu items to check all feeds singularly.
+			 */
+      it("does not throw errors in-bounds", function() {
+				// checks the loadFeed function from last to first index
+				for(var i = allFeeds.length; i > 0; i--){
+	        expect(function() {
+	          loadFeed(i-1);
+	        }).not.toThrow();
+				}
       });
     });
 
     /* This suite is all about the Menu, its appearance
-		 * and the its updates.
+		 * and its updates.
      */
     describe("The menu", function() {
       /* This tests that on the first load of the page,
 			 * the menu is hidden by default.
 			 */
       it("is hidden by default", function() {
-        if (expect($("body").attr("class")).toBe("menu-hidden"));
+        expect($("body").hasClass("menu-hidden")).toBe(true);
       });
 
       /* This tests that two concecutive clicks on the menuIcon
@@ -82,20 +88,25 @@ $(
 					* of the menu.
 					*/
       it("changes visibility on click", function() {
-        window.initialClass = $("body").attr("class");
+				// testClass holds the visibility check prior to the click
+				let testClass;
+
         for (var i = 0; i < 2; i++) {
-          $(".menu-icon-link").click();
-          switch (window.initialClass) {
-            case "":
-              expect($("body").attr("class")).toBe("menu-hidden");
+					testClass = $("body").hasClass("menu-hidden");
+					$(".menu-icon-link").click();
+
+          switch (testClass) {
+            case false:
+              expect($("body").hasClass("menu-hidden")).toBe(true);
               break;
-            case "menu-hidden":
-              expect($("body").attr("class")).toBe("");
+            case true:
+              expect($("body").hasClass("menu-hidden")).toBe(false);
               break;
             default:
               expect(true).toBe(false);
           }
-          window.initialClass = $("body").attr("class");
+					// switches the visibility
+          $("body").toggleClass("menu-hidden");
         }
       });
     });
@@ -112,7 +123,7 @@ $(
       });
 
       it("contains at least one entry", function(done) {
-        expect($(".feed:has(.entry)").length).toBeGreaterThan(0);
+        expect($(".feed .entry").length).toBeGreaterThan(0);
         done();
       });
     });
@@ -120,20 +131,25 @@ $(
     /* This suite is about the selection of a different feed. */
     describe("New Feed Selection", function() {
       /* This tests that changing the feed also changes the page's content.
-				 * It uses two nested callbacks to ensure that the spec is asynchronous.
-				 */
+			 * It uses two nested callbacks to ensure that the spec is asynchronous.
+			 */
+
+			// feedOne and feedTwo hold the feed elements before and after
+			// changing feed
+			let feedOne, feedTwo;
+
       beforeEach(function(done) {
         loadFeed(1, function() {
-          window.feedOne = $(".feed").html();
+          feedOne = $(".feed").html();
           loadFeed(0, function() {
-            window.feedTwo = $(".feed").html();
+            feedTwo = $(".feed").html();
             done();
           });
         });
       });
 
       it("changes the actual content", function(done) {
-        expect(window.feedOne).not.toBe(window.feedTwo);
+        expect(feedOne).not.toBe(feedTwo);
         done();
       });
     });
